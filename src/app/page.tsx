@@ -1,3 +1,12 @@
+import FeaturedPosts from "@/components/FeaturedPosts";
+import HeroProfile from "@/components/HeroProfile";
+
 export default function Home() {
-  return <section className=" bg-gray-500">main</section>;
+  return (
+    <>
+      <HeroProfile />
+      {/* @ts-expect-error Async Server Component */}
+      <FeaturedPosts />
+    </>
+  );
 }
