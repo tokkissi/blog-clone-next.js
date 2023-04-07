@@ -1,4 +1,5 @@
 "use client";
+import { sendContactEmail } from "@/service/contact";
 import { ChangeEvent, FormEvent, useState } from "react";
 import Banner, { BannerData } from "./Banner";
 
@@ -7,14 +8,16 @@ type Form = {
   subject: string;
   message: string;
 };
+const DEFAULT_FOAM_DATA = {
+  from: "",
+  subject: "",
+  message: "",
+};
 
 export default function ContactForm() {
-  const [form, setForm] = useState<Form>({
-    from: "",
-    subject: "",
-    message: "",
-  });
+  const [form, setForm] = useState<Form>(DEFAULT_FOAM_DATA);
   const [banner, setBanner] = useState<BannerData | null>(null);
+  const [isSending, setIsSending] = useState<boolean>(false);
 
   const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -22,11 +25,30 @@ export default function ContactForm() {
   };
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(form);
-    setBanner({ message: "토끼씨에게 메일을 보냈습니다!", state: "success" });
-    setTimeout(() => {
-      setBanner(null);
-    }, 3000);
+    if (isSending) {
+      return;
+    }
+    setIsSending(true);
+    sendContactEmail(form) //
+      .then(() => {
+        setBanner({
+          message: "메일을 성공적으로 전송했습니다",
+          state: "success",
+        });
+        setForm(DEFAULT_FOAM_DATA);
+      })
+      .catch(() => {
+        setBanner({
+          message: "메일 전송에 실패했습니다. 다시 시도해주세요",
+          state: "fail",
+        });
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setBanner(null);
+        }, 3000);
+        setIsSending(false);
+      });
   };
 
   return (
